@@ -135,7 +135,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--provider", required=True, help="Fournisseur LLM (mistral, openai, google)")
     parser.add_argument("--model", required=True, help="Nom du modèle à utiliser")
-    parser.add_argument("--arbs_folder", required=True, help="Chemin du dossier contenant les fichiers ARB")
+    parser.add_argument("--arbs-folder", required=True, help="Chemin du dossier contenant les fichiers ARB")
     parser.add_argument("--files", nargs="+", required=True, help="Liste des fichiers Flutter à traiter")
     args = parser.parse_args()
 
