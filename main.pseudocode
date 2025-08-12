@@ -1,0 +1,42 @@
+# Pseudo-code
+
+from llm import LLM
+
+def main(provider:str, api_key_:str, model:str, files_path:[file_path:str]):
+
+    llm = llm(provider:str, api_key_:str, model:str)
+
+    l10nFolder = 'lib/l10n/'
+    langsArb = os.find(l10nFolder + '*.arb')
+    langs = langsArb.split('_')[1].split('.')[0]
+    
+    with f as file.open(files_path[0], 'r'):
+        langProof = f.readlines()
+
+    ref_lang_tag = llm.chooseLanguage(langProof, langs)
+    arbFilePath = os.join(l10nFolder, f'app_{ref_lang_tag}.arb')
+
+    fullArbLines = json()
+
+    for file_path in files_path:
+        with f as file.open(file_path, 'r'):
+            input = f.readlines()
+
+        arbLines, flutterFile = llm.process(input, arbFilePath.json().toString(), ref_lang_tag)
+
+        with f as json.open(arbFilePath, 'rw'):
+            f.add(abLines)
+
+            fullArbLines = fullArbLines.add(f.json())
+
+
+        with f as file.open(file_path, 'rw'):
+            f.overwrite(flutterFile)
+    
+    otherArbFilesPath = langsArb.exclude(arbFilePath)
+
+    for file_path in otherArbFilesPath:
+        lang_tag = file_path.split('_')[1].split('.')[0]
+        otherArbLines = llm.getTranslations(fullArbLines, lang_tag)
+
+        file_path.json().add(otherArblines.json())
