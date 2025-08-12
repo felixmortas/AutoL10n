@@ -1,5 +1,4 @@
 import json
-import os
 import shutil
 import tempfile
 from pathlib import Path
@@ -23,11 +22,11 @@ def atomic_write(file_path: Path, content: str):
     print(f"[DEBUG] Fichier mis à jour atomiquement : {file_path}")
 
 
-def main(provider: str, model: str, files_path: List[str]):
+def main(provider: str, model: str, arbs_folder_path: str, files_path: List[str]):
     print("[INFO] Initialisation du client LLM...")
     llm = LLM(provider=provider, model=model)
 
-    l10n_folder = Path("lib/l10n/")
+    l10n_folder = Path(arbs_folder_path)
     if not l10n_folder.exists():
         raise FileNotFoundError(f"Le dossier {l10n_folder} n'existe pas.")
 
@@ -44,7 +43,6 @@ def main(provider: str, model: str, files_path: List[str]):
         # read all the lines of the file
         lang_proof = f.read()
 
-    print(f"[DEBUG] Contenu du premier fichier Flutter : {lang_proof[:100]}...")  # Affiche les 100 premiers caractères
     print("[INFO] Détection de la langue...")
     lang_tag = llm.choose_language(lang_proof, langs)
     print(f"[INFO] Langue détectée : {lang_tag}")
@@ -74,15 +72,10 @@ def main(provider: str, model: str, files_path: List[str]):
 
         striped_response = final_response.strip('```dart').strip('```json')
         parts = striped_response.split('```')
-        print(f"[DEBUG] Réponse du LLM stripé des ```: {parts}")
         arb_lines = parts[0].strip()
-        print(f"[DEBUG] Lignes ARB json : {arb_lines}")
         updated_flutter = parts[2]
-        print(f"[DEBUG] Code Flutter : {updated_flutter[:200]}...")  # Affiche les 200 premiers caractères
 
-        print(f"[DEBUG] Lignes ARB json : {arb_lines}")
-
-        print(f"[DEBUG] Code Flutter mis à jour : {updated_flutter[:200]}...")  # Affiche les 200 premiers caractères
+        print(f"[DEBUG] Lignes ARB créées : {arb_lines}")
 
         fullArbLines.update(json.loads(arb_lines))
         fullArbLines = json.dumps(fullArbLines, indent=2, ensure_ascii=False)
@@ -127,7 +120,6 @@ def merge_json_strings(existing_json: str, new_json: str) -> str:
     import json
     try:
         print("[DEBUG] Fusion des fichiers JSON...")
-        print(f"[DEBUG] JSON nouveau : {new_json}")
         existing_data = json.loads(existing_json)
         new_data = json.loads(new_json)
         new_data.update(existing_data)
@@ -143,7 +135,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--provider", required=True, help="Fournisseur LLM (mistral, openai, google)")
     parser.add_argument("--model", required=True, help="Nom du modèle à utiliser")
+    parser.add_argument("--arbs_folder", required=True, help="Chemin du dossier contenant les fichiers ARB")
     parser.add_argument("--files", nargs="+", required=True, help="Liste des fichiers Flutter à traiter")
     args = parser.parse_args()
 
-    main(args.provider, args.model, args.files)
+    main(args.provider, args.model, args.arbs_folder, args.files)

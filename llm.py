@@ -17,14 +17,7 @@ class LLM:
         self.model = model
         self.llm = self._init_llm()
         self._init_langfuse()
-        self.langfuse_config={
-            "callbacks": [CallbackHandler()],
-            "metadata": {
-                "langfuse_user_id": "felix",
-                "langfuse_session_id": "l10n-assistant",
-                "langfuse_tags": ["single-llm"]
-            }
-        }
+        self.langfuse_handler = CallbackHandler()
 
     def _init_llm(self):
         print(f"[DEBUG] Initialisation du LLM {self.provider} avec modèle {self.model}")
@@ -70,7 +63,15 @@ class LLM:
         sys_prompt, hum_prompt = self._load_prompt("chooseLanguage")
         sys_prompt = sys_prompt.format(langs=", ".join(langs))
         hum_prompt = hum_prompt.format(doc=doc)
-        response = self._invoke(sys_prompt, hum_prompt, config=self.langfuse_config)
+        response = self._invoke(sys_prompt, hum_prompt, 
+                                config={
+                                    "callbacks": [self.langfuse_handler],
+                                    "metadata": {
+                                        "langfuse_user_id": "felix",
+                                        "langfuse_session_id": "l10n-assistant",
+                                        "langfuse_tags": ["choose_lang"]
+                                    }
+                                })
         try:
             return response.split("REPONSE FINALE :")[1].strip()
         except Exception:
@@ -79,7 +80,15 @@ class LLM:
     def process(self, flutter_file: str, arb_file: str, lang: str) -> tuple[str, str]:
         sys_prompt, hum_prompt = self._load_prompt("process")
         hum_prompt = hum_prompt.format(arb_file=arb_file, flutter_file=flutter_file, lang=lang)
-        response = self._invoke(sys_prompt, hum_prompt, config=self.langfuse_config)
+        response = self._invoke(sys_prompt, hum_prompt, 
+                                config={
+                                    "callbacks": [self.langfuse_handler],
+                                    "metadata": {
+                                        "langfuse_user_id": "felix",
+                                        "langfuse_session_id": "l10n-assistant",
+                                        "langfuse_tags": ["process"]
+                                    }
+                                })
         try:
             final_response = response.split("REPONSE FINALE :")[1].strip()
             return final_response
@@ -89,7 +98,15 @@ class LLM:
     def amend_arb(self, input_json: str, lang_tag: str) -> str:
         sys_prompt, hum_prompt = self._load_prompt("amendArb")
         hum_prompt = hum_prompt.format(lang_tag=lang_tag, input=input_json)
-        response = self._invoke(sys_prompt, hum_prompt, config=self.langfuse_config)
+        response = self._invoke(sys_prompt, hum_prompt, 
+                                config={
+                                    "callbacks": [self.langfuse_handler],
+                                    "metadata": {
+                                        "langfuse_user_id": "felix",
+                                        "langfuse_session_id": "l10n-assistant",
+                                        "langfuse_tags": ["amend_arb"]
+                                    }
+                                })
         try:
             return response.split("REPONSE FINALE :")[-1].strip()
         except Exception:
