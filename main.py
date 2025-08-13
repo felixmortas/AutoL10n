@@ -70,10 +70,14 @@ def main(provider: str, model: str, arbs_folder_path: str, files_path: List[str]
 
         final_response = llm.process(flutter_content, arb_content, lang_tag)
 
-        striped_response = final_response.strip('```dart').strip('```json')
-        parts = striped_response.split('```')
+        striped_response = final_response.strip().replace('<JSON>', '').replace('</JSON>', '').replace('</dart>', '')
+
+
+        parts = striped_response.split('<dart>')
         arb_lines = parts[0].strip()
-        updated_flutter = parts[2]
+        print(f"[DEBUG] updatedFlutter créées : {parts[1][:300]}")
+        updated_flutter = parts[1].strip()
+        print(f"[DEBUG] updatedFlutter créées stripé : {updated_flutter[300:500]}...")  # Affiche les 200 premiers caractères
 
         print(f"[DEBUG] Lignes ARB créées : {arb_lines}")
 
